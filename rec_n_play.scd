@@ -62,3 +62,5 @@ SynthDef(\help_PlayBuf, {| out = 0, bufnum = 0 |
         PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum)*rate, 1.0, 0.0, 1.0)
     )
 }).play(s, [\out, 0, \bufnum, b]);
+
+s.makeGui;
