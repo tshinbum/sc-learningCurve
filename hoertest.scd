@@ -49,36 +49,63 @@ SynthDef(\sin, { arg freq=440;
 Synth(\sin,[\freq, 880]);
 
 Window.screenBounds().width
+
+
+n.top    = n.top + 20;
+n.height = n.height - 20;
+n
+
 // GUI
+
 (
-SynthDef(\sin, { arg freq=440;
-	Out.ar(0,SinOsc.ar(freq))
+
+SynthDef(\sin, { arg freq=440, mul=0.1, pan=0;
+	Out.ar(0,Pan2.ar(SinOsc.ar(freq,0,mul),pan))
 }).send;
 
 
+(
 {
 	var w, b, freq, vol, pan, freqVal, volVal, panVal;
 	var screen = Window.screenBounds();
-	w = Window.new("Hoertest", Window.screenBounds(),false,false);
+	var synth;
+	var specF;
+
+	synth = Synth(\sin,[\freq, 440, \mul, 0.4, \pan, 1]);
+
+	screen.top    = 200;
+	screen.height = screen.height - 200;
+	screen.postln;
+	w = Window.new("Hoertest", screen,true,true);
 	//b = Button.new(w,Rect(10,0,80,30)).states_([["Start"],["Stop"]]);
 
-	StaticText.new(w,Rect(0,0,80,30)).string_("Frequenz");
-	freqVal = StaticText.new(w,Rect(600,0,80,30)).string_("0");
-	freq = Slider.new(w,Rect(95, 0,500,30))
-	       .action_({ var frequency;
-		              frequency = freq.value*(25000.log).exp;
-		              freqVal.string = (frequency).asString;
-		              Synth(\sin,[\freq, frequency])
-		            });
+	StaticText.new(w,Rect(0,20,80,30)).string_("Frequenz");
+	freqVal = StaticText.new(w,Rect(600,20,80,30)).string_("0");
 
-	StaticText.new(w,Rect(0,35,80,30)).string_("Lautstärke");
-	volVal = StaticText.new(w,Rect(600,35,80,30)).string_("0");
-	vol  = Slider.new(w,Rect(95,35,500,30))
-	       .action_({ volVal.string = vol.value.asString });
+	specF = \freq.asSpec;
+	freq = Slider.new(w,Rect(95, 20,500,30))
+	.action_(
+		{
+			var frequency;
+			frequency = freq.value*(25000.log).exp;
+			freqVal.string = (frequency).asString;
+			synth.set(\freq, frequency);
+		}
+	);
 
-	StaticText.new(w,Rect(0,70,80,30)).string_("Richtung");
-	panVal = StaticText.new(w,Rect(600,70,80,30)).string_("0");
-	pan  = Slider.new(w,Rect(95,70,500,30))
+	StaticText.new(w,Rect(0,55,80,30)).string_("Lautstärke");
+	volVal = StaticText.new(w,Rect(600,55,80,30)).string_("0");
+	vol  = Slider.new(w,Rect(95,55,500,30))
+	.action_(
+		{
+			volVal.string = vol.value.asString;
+			synth.set(\mul, vol);
+		}
+	);
+
+	StaticText.new(w,Rect(0,90,80,30)).string_("Richtung");
+	panVal = StaticText.new(w,Rect(600,90,80,30)).string_("0");
+	pan  = Slider.new(w,Rect(95,90,500,30))
 	       .action_({ panVal.string = (pan.value * 2 - 1).asString })
 	       .value_(0.5);
 
